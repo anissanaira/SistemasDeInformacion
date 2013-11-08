@@ -1,0 +1,150 @@
+#pragma once
+
+#include "iostream"
+using namespace std;
+#include "string"
+
+#ifndef _WINDOWS_
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef WIN32_LEAN_AND_MEAN
+#endif
+
+#include<winsock2.h>
+
+#pragma comment(lib,"ws2_32.lib")
+
+#include<my_global.h>
+#include"mysql.h"
+
+namespace Proyecto_Sistemas_Informacion {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Resumen de Lista_Acciones_Correctivas
+	/// </summary>
+	public ref class Lista_Acciones_Correctivas : public System::Windows::Forms::Form
+	{
+	public:
+		Lista_Acciones_Correctivas(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: agregar código de constructor aquí
+			//
+		}
+
+	protected:
+		/// <summary>
+		/// Limpiar los recursos que se estén utilizando.
+		/// </summary>
+		~Lista_Acciones_Correctivas()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::DataGridView^  dataGridView1;
+	protected: 
+
+	private:
+		/// <summary>
+		/// Variable del diseñador requerida.
+		/// </summary>
+		System::ComponentModel::Container ^components;
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Método necesario para admitir el Diseñador. No se puede modificar
+		/// el contenido del método con el editor de código.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->BeginInit();
+			this->SuspendLayout();
+			// 
+			// dataGridView1
+			// 
+			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
+			this->dataGridView1->Location = System::Drawing::Point(13, 13);
+			this->dataGridView1->Name = L"dataGridView1";
+			this->dataGridView1->Size = System::Drawing::Size(569, 187);
+			this->dataGridView1->TabIndex = 0;
+			// 
+			// Lista_Acciones_Correctivas
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(594, 212);
+			this->Controls->Add(this->dataGridView1);
+			this->Name = L"Lista_Acciones_Correctivas";
+			this->Text = L"Lista_Acciones_Correctivas";
+			this->Load += gcnew System::EventHandler(this, &Lista_Acciones_Correctivas::Lista_Acciones_Correctivas_Load);
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->EndInit();
+			this->ResumeLayout(false);
+
+		}
+#pragma endregion
+	private: System::Void Lista_Acciones_Correctivas_Load(System::Object^  sender, System::EventArgs^  e) {
+					MYSQL *con = mysql_init(NULL);
+					MYSQL_RES *result;
+					if(con == NULL){
+						MessageBox::Show("Error\nConexion rota");
+					}
+					else{
+						if(mysql_real_connect(con,"localhost","root","","db_trabajo",3306,NULL,0)==NULL)
+						{
+							MessageBox::Show("Error\nLogin Failed");
+						}
+						else{
+							if(!mysql_select_db(con,"db_trabajo")){
+
+							if(!mysql_query(con,"SELECT * FROM tbl_AccionesCorrectivas;")){
+								result = mysql_store_result(con);
+								if (NULL != result)
+								{
+
+									 int num_campos = mysql_num_fields(result);
+									  MYSQL_ROW row;
+									  MYSQL_FIELD *field;
+  
+									  while ((row = mysql_fetch_row(result))) 
+									  { 
+										  for(int i = 0; i < num_campos; i++) 
+										  { 
+											  if (i == 0) 
+											  {              
+												 while(field = mysql_fetch_field(result)) 
+												 {
+													dataGridView1->ColumnCount++;
+													dataGridView1->Columns[dataGridView1->ColumnCount-1]->Name = gcnew System::String(field->name);
+												 }
+             
+												       
+											  }
+        										  } 
+									  }
+   
+									 mysql_free_result(result);
+
+								}
+
+							}
+							else{	
+								MessageBox::Show("Fail");
+							}
+							mysql_close(con);
+						}
+						}
+					}
+			 }
+	};
+}
